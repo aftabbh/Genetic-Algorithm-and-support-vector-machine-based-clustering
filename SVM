@@ -1,0 +1,28 @@
+pip install scikit-learn
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import svm
+from sklearn.datasets import make_blobs
+
+# Generate sample data
+X, _ = make_blobs(n_samples=300, centers=2, cluster_std=0.60, random_state=0)
+
+# Fit the model
+clf = svm.OneClassSVM(nu=0.1, kernel="rbf", gamma=0.1)
+clf.fit(X)
+
+# Predict
+y_pred = clf.predict(X)
+
+# Plot the results
+xx, yy = np.meshgrid(np.linspace(-5, 5, 500), np.linspace(-5, 5, 500))
+Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.title("One-Class SVM")
+plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='darkred')
+plt.scatter(X[:, 0], X[:, 1], c=y_pred, cmap=plt.cm.Paired, edgecolors='k')
+plt.axis('tight')
+plt.show()
+python svm_clustering.py
