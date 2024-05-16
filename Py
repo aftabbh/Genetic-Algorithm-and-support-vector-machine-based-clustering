@@ -1,0 +1,60 @@
+pip install numpy pandas scikit-learn matplotlib
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+
+# Load dataset
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Standardize the features
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Train the SVM model
+clf = SVC(kernel='linear', C=1.0, random_state=42)
+clf.fit(X_train, y_train)
+
+# Make predictions
+y_pred = clf.predict(X_test)
+
+# Evaluate the model
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+# Plot the decision boundary for the first two features
+def plot_decision_boundary(X, y, clf, ax):
+    # Create a mesh grid
+    x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
+                         np.arange(y_min, y_max, 0.01))
+
+    # Plot the decision boundary
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    ax.contourf(xx, yy, Z, alpha=0.3, cmap=plt.cm.Paired)
+    ax.scatter(X[:, 0], X[:, 1], c=y, s=30, edgecolor='k', cmap=plt.cm.Paired)
+    ax.set_xlim(X[:, 0].min() - 1, X[:, 0].max() + 1)
+    ax.set_ylim(X[:, 1].min() - 1, X[:, 1].max() + 1)
+    ax.set_xticks(())
+    ax.set_yticks(())
+
+# Visualize the decision boundary for the first two features
+fig, ax = plt.subplots()
+plot_decision_boundary(X_train[:, :2], y_train, clf, ax)
+plt.title('SVM Decision Boundary (First Two Features)')
+plt.xlabel(iris.feature_names[0])
+plt.ylabel(iris.feature_names[1])
+plt.show()
+python svm_classification.py
